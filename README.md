@@ -7,7 +7,14 @@ Custom nodes for [ComfyUI](https://github.com/comfyanonymous/ComfyUI).
 
 ## Installing
 
-Just add [MultiLoraLoader.py](MultiLoraLoader.py) to ComfyUI's `custom_nodes` directory.
+Two options:
+
+- Add [MultiLoraLoader.py](MultiLoraLoader.py) to ComfyUI's `custom_nodes` directory.
+- Clone this repo into the `custom_nodes` directory, which will make it easier to update.
+   1. `cd custom_nodes`
+   2. `git clone https://github.com/skfoo/ComfyUI-Coziness.git`
+
+Then restart ComfyUI.
 
 ## MultiLora Loader
 
