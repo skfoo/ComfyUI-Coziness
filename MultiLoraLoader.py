@@ -155,6 +155,15 @@ class LoraTextExtractor:
     def __init__(self):
         self.lora_spec_re = re.compile("(<(?:lora|lyco):[^>]+>)")
     
+    def make_stack(self, extracted):
+        # the stack format is a list of tuples of full path, model weight, clip weight,
+        # e.g. [('styles\\abstract.safetensors', 0.8, 0.8)]
+        available_loras = MultiLoraLoader.available_loras(None)
+        lora_dictionary = MultiLoraLoader.dictionary_with_short_names_for_loras(None, available_loras)
+        lora_items = LoraItemsParser.parse_lora_items_from_text(extracted, lora_dictionary)
+        stack_tuple = [(item.get_lora_path(), item.strength_model, item.strength_clip) for item in lora_items]
+        return stack_tuple
+    
     @classmethod
     def INPUT_TYPES(s):
         return {"required": { "text": ("STRING", {
@@ -162,16 +171,17 @@ class LoraTextExtractor:
                                 "default": ""}),
                             }}
 
-    RETURN_TYPES = ("STRING", "STRING")
-    RETURN_NAMES = ("Filtered Text", "Extracted Loras")
+    RETURN_TYPES = ("STRING", "STRING", "LORA_STACK")
+    RETURN_NAMES = ("Filtered Text", "Extracted Loras", "Lora Stack")
     FUNCTION = "process_text"
     CATEGORY = "utils"
 
     def process_text(self, text):
         extracted_loras = self.lora_spec_re.findall(text)
         filtered_text = self.lora_spec_re.sub("", text)
+        lora_stack = self.make_stack("\n".join(extracted_loras))
         
-        return (filtered_text, "\n".join(extracted_loras))
+        return (filtered_text, "\n".join(extracted_loras), lora_stack)
 
 NODE_CLASS_MAPPINGS = {
     "MultiLoraLoader-70bf3d77": MultiLoraLoader,
