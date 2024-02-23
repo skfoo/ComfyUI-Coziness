@@ -16,6 +16,11 @@ Two options:
 
 Then restart ComfyUI.
 
+## Updates
+
+### 2024/2/22
+- Added support for connecting Lora Text Extractor directly to *Efficiency Nodes for ComfyUI*'s lora stack inputs
+
 ## MultiLora Loader
 
 Uses a textual description to specify the loras you want to add to a checkpoint model.
@@ -58,7 +63,7 @@ four:1:0.5
 
 ## Lora Text Extractor
 
-Takes the input text and extracts loras specified using Automatic1111's lora syntax out of it. It has two outputs: one for the filtered text without the loras, and another with the stuff that was removed from it, separated by newlines. You can connect the filtered text output to a CLIP Text Encode node to use as your prompt, and the lora text output to MultiLora Loader.
+Takes the input text and extracts loras specified using Automatic1111's lora syntax out of it. It has two outputs: one for the filtered text without the loras, and another with the stuff that was removed from it, separated by newlines. You can connect the filtered text output to a CLIP Text Encode node to use as your prompt, and the lora text output to MultiLora Loader. If you're using Efficiency Nodes for ComfyUI, you can connect the Lora Stack output to Efficient Loader's lora_stack input.
 
 ![Example Lora Text Extractor Connections](/docs/images/lora-text-extractor-connections.png)
 
