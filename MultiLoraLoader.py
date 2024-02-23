@@ -1,4 +1,5 @@
-import torch
+# https://github.com/skfoo/ComfyUI-Coziness
+
 import folder_paths
 import comfy.utils
 import comfy.sd
@@ -7,7 +8,7 @@ import re
 
 class MultiLoraLoader:
     def __init__(self):
-        self.lora_items = []
+        self.selected_loras = SelectedLoras()
     
     @classmethod
     def INPUT_TYPES(s):
@@ -25,18 +26,30 @@ class MultiLoraLoader:
     def load_loras(self, model, clip, text):
         result = (model, clip)
         
-        available_loras = self.available_loras()
-        self.update_current_lora_items_with_new_items(self.items_from_lora_text_with_available_loras(text, available_loras))
+        lora_items = self.selected_loras.updated_lora_items_with_text(text)
 
-        if len(self.lora_items) > 0:
-            for item in self.lora_items:
-                if item.lora_name in available_loras:
-                    result = item.apply_lora(result[0], result[1])
-                else:
-                    raise ValueError(f"Unable to find lora with name '{item.lora_name}'")
+        if len(lora_items) > 0:
+            for item in lora_items:
+                result = item.apply_lora(result[0], result[1])
             
         return result
+ 
+# maintains a list of lora objects made from a prompt, preserving loaded loras across changes
+class SelectedLoras:
+    def __init__(self):
+        self.lora_items = []
+
+    # returns a list of loaded loras using text from LoraTextExtractor
+    def updated_lora_items_with_text(self, text):
+        available_loras = self.available_loras()
+        self.update_current_lora_items_with_new_items(self.items_from_lora_text_with_available_loras(text, available_loras))
         
+        for item in self.lora_items:
+            if item.lora_name not in available_loras:
+                raise ValueError(f"Unable to find lora with name '{item.lora_name}'")
+            
+        return self.lora_items
+
     def available_loras(self):
         return folder_paths.get_filename_list("loras")
     
@@ -154,7 +167,8 @@ class LoraItem:
 class LoraTextExtractor:
     def __init__(self):
         self.lora_spec_re = re.compile("(<(?:lora|lyco):[^>]+>)")
-    
+        self.selected_loras = SelectedLoras()
+
     @classmethod
     def INPUT_TYPES(s):
         return {"required": { "text": ("STRING", {
@@ -162,16 +176,20 @@ class LoraTextExtractor:
                                 "default": ""}),
                             }}
 
-    RETURN_TYPES = ("STRING", "STRING")
-    RETURN_NAMES = ("Filtered Text", "Extracted Loras")
+    RETURN_TYPES = ("STRING", "STRING", "LORA_STACK")
+    RETURN_NAMES = ("Filtered Text", "Extracted Loras", "Lora Stack")
     FUNCTION = "process_text"
     CATEGORY = "utils"
 
     def process_text(self, text):
-        extracted_loras = self.lora_spec_re.findall(text)
+        extracted_loras = "\n".join(self.lora_spec_re.findall(text))
         filtered_text = self.lora_spec_re.sub("", text)
+
+        # the stack format is a list of tuples of full path, model weight, clip weight,
+        # e.g. [('styles\\abstract.safetensors', 0.8, 0.8)]
+        lora_stack = [(item.get_lora_path(), item.strength_model, item.strength_clip) for item in self.selected_loras.updated_lora_items_with_text(extracted_loras)]
         
-        return (filtered_text, "\n".join(extracted_loras))
+        return (filtered_text, extracted_loras, lora_stack)
 
 NODE_CLASS_MAPPINGS = {
     "MultiLoraLoader-70bf3d77": MultiLoraLoader,
