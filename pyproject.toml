@@ -1,0 +1,14 @@
+[project]
+name = "comfyui-coziness"
+description = "Nodes:MultiLora Loader, Lora Text Extractor. Provides a node for assisting in loading loras through text."
+version = "1.0.0"
+license = "LICENSE"
+
+[project.urls]
+Repository = "https://github.com/skfoo/ComfyUI-Coziness"
+#  Used by Comfy Registry https://comfyregistry.org
+
+[tool.comfy]
+PublisherId = ""
+DisplayName = "ComfyUI-Coziness"
+Icon = ""
