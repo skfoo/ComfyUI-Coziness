@@ -21,6 +21,9 @@ Then restart ComfyUI.
 ### 2024/2/22
 - Added support for connecting Lora Text Extractor directly to *Efficiency Nodes for ComfyUI*'s lora stack inputs
 
+### 2024/5/27
+- v1.0.2: Updates for Comfy Registry
+
 ## MultiLora Loader
 
 Uses a textual description to specify the loras you want to add to a checkpoint model.
