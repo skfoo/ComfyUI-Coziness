@@ -2,7 +2,7 @@
 name = "comfyui-coziness"
 description = "Nodes: MultiLora Loader, Lora Text Extractor. Provides a node for assisting in loading loras through text."
 version = "1.0.2"
-license = "MIT"
+license = { text = "MIT License" }
 
 [project.urls]
 Repository = "https://github.com/skfoo/ComfyUI-Coziness"
